@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Http, Headers} from "@angular/http";
 import 'rxjs/add/operator/map'
-import {Subject} from "rxjs";
 import {AuthService} from "./auth.service";
 
 @Injectable()
 export class DatabaseService{
 
   constructor(private http: Http, private auth: AuthService) {
-    this.onLoggedUser();
+
   }
 
   usersList: any;
@@ -118,25 +117,6 @@ export class DatabaseService{
     return this.http.put(this.settingsUrl + '/' + this.categorySettings + this.apiKey, JSON.stringify(body),{headers:headers})
       .map(response => response.json());
   }
-
-
-  // this manages the logged user, and creates an observable, subscribe to LoggedUser$
-  private LoggedUser = new Subject<string[]>();
-  LoggedUser$ = this.LoggedUser.asObservable();
-  onLoggedUser(){
-    if(this.auth.authenticated()){
-      this.getUsersSettings().subscribe(response => {
-        this.usersList = response.users;
-
-        for (let i = 0; i < response.users.length; i++) {
-          if (response.users[i].name == this.auth.userProfile.user_metadata.name && response.users[i].permission == this.auth.userProfile.user_metadata.permission) {
-            this.LoggedUser.next(this.usersList[i]);
-          }
-        }
-      });
-    }
-  }
-  // this manages the logged user, and creates an observable, subscribe to LoggedUser$
 
 
 }
