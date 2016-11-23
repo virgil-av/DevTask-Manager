@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dbServices.LoggedUser$.subscribe(response => this.loggedUser = response)
+
   }
 
 }
