@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/Build-passing-green.svg) ![](https://img.shields.io/badge/version-1.0.2-blue.svg) ![](https://img.shields.io/badge/Angular%20CLI-1.0.0--beta.21-orange.svg) 
+![](https://img.shields.io/badge/version-1.0.2-blue.svg) ![](https://img.shields.io/badge/Angular%20CLI-1.0.0--beta.21-orange.svg) 
 
 # Development Task Manager!
 
