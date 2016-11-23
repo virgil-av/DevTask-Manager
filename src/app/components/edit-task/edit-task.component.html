@@ -1,0 +1,187 @@
+<div *ngIf="selectedTask">
+
+  <!-- Modal Edit -->
+  <div class="modal fade" id="EditTask" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel">Edit Task <span *ngIf="selectedTask.lastEdit" class="pull-right">Last edit: {{selectedTask.lastEdit | date:'medium'}} &nbsp;&nbsp;</span>
+          </h4>
+        </div>
+        <div class="modal-body">
+
+          <form [formGroup]="editTask" (ngSubmit)="onSave()">
+            <div>
+              <div class="form-group">
+                <label>Title:</label>
+                <input type="text" class="form-control" formControlName="title" placeholder="A descriptive title...">
+                <span class="alert" *ngIf="editTask.controls.title.dirty && (editTask.controls.title.errors != null)">Minimum length for your title is 5 characters.</span>
+              </div>
+              <br>
+
+              <div class="form-group" *ngIf="formSettings">
+                <label>Status:</label>
+                <select class="form-control" formControlName="status">
+                  <option *ngFor="let status of formSettings.status" value="{{status}}">{{status}}</option>
+                </select>
+              </div>
+              <br>
+
+              <div class="form-group" *ngIf="formSettings">
+                <label>Priority:</label>
+                <select class="form-control" formControlName="priority">
+                  <option *ngFor="let priority of formSettings.priority" value="{{priority}}">{{priority}}</option>
+                </select>
+              </div>
+              <br>
+
+              <div class="form-group" *ngIf="usersSettings">
+                <label>Assignee:</label>
+                <input type="text" class="form-control" formControlName="assignee" placeholder="Click to select..."
+                       list="userList">
+                <datalist id="userList">
+                  <option *ngFor="let assignee of usersSettings.users" value="{{assignee.name}}">
+                </datalist>
+              </div>
+              <br>
+
+              <div class="form-group" *ngIf="categorySettings">
+                <label>Category:</label>
+                <select class="form-control" formControlName="category">
+                  <option *ngFor="let category of categorySettings.categories" value="{{category.name}}">{{category.name}}</option>
+                </select>
+              </div>
+              <br>
+
+              <div class="form-group">
+                <label>Comment:</label>
+                <textarea class="form-control" formControlName="comment"
+                          placeholder="Providing that extra information is always a better choice."></textarea>
+              </div>
+              <br>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!editTask.valid">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Discussion -->
+  <div class="modal fade" id="DiscussionModal" tabindex="-1" role="dialog" aria-labelledby="DiscussionModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="DiscussionModalLabel">{{selectedTask.title | capitalize}}</h4>
+        </div>
+        <div class="modal-body">
+
+          <div *ngIf="selectedTask.discussion && !anyErrors">
+            <div *ngFor="let d of selectedTask.discussion">
+              <div class="panel panel-default" *ngIf="d != null">
+                <div class="panel-heading">
+                  <h3 class="panel-title">{{d?.user}}<span class="pull-right">{{+d?.date | date:'medium'}}</span></h3>
+                </div>
+                <div class="panel-body">
+                  {{d?.message | capitalize}}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-danger" role="alert" *ngIf="anyErrors">
+            Something went wrong, your last comment was not saved. Check your Internet Connection. Refresh the
+            application.
+            <br>
+            <pre><code>{{anyErrors}}</code></pre>
+          </div>
+
+
+          <form (ngSubmit)="addMessage(messageForm)" #messageForm="ngForm">
+            <div class="form-group">
+              <label>Message:</label>
+              <textarea ngModel name="message" class="form-control"
+                        placeholder="Here you can add a message."></textarea>
+            </div>
+            <input type="submit" class="btn btn-success" value="Add Message">&nbsp; &nbsp;
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Modal Add Testers-->
+  <div class="modal fade" id="TestersModal" tabindex="-1" role="dialog" aria-labelledby="TestersModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="TestersModalLabel">{{selectedTask.title | capitalize}}</h4>
+        </div>
+        <div class="modal-body">
+
+          <div *ngIf="selectedTask.testers && !anyErrors">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Testers assigned to this task</h3>
+              </div>
+              <div class="panel-body">
+                <div *ngFor="let tester of selectedTask.testers">
+                  <div class="well" *ngIf="tester != null">
+                    <span class="name-initials">{{tester?.name | nameInitials}}</span> {{tester?.name}}
+                    <button (click)="removeTester(tester?.date)" type="button" class="close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    <span class="pull-right">{{tester?.date | date:'medium'}} &nbsp;&nbsp;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-danger" role="alert" *ngIf="anyErrors">
+            Something went wrong, your last comment was not saved. Check your Internet Connection. Refresh the
+            application.
+            <br>
+            <pre><code>{{anyErrors}}</code></pre>
+          </div>
+
+          <form (ngSubmit)="addTester(testerForm)" #testerForm="ngForm">
+            <div class="form-group" *ngIf="usersSettings">
+              <label>Add tester:</label>
+              <input type="text" class="form-control" ngModel name="tester" placeholder="Click to select..."
+                     list="testerList">
+              <datalist id="testerList">
+                <option *ngFor="let tester of usersSettings.users" value="{{tester.name}}">
+              </datalist>
+            </div>
+            <input type="submit" class="btn btn-success" value="Add Tester">&nbsp; &nbsp;
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>

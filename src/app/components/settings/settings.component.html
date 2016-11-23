@@ -1,0 +1,144 @@
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-success">
+        <div class="panel-heading" (click)="userToggle()">
+          <h3 class="panel-title">
+            <span *ngIf="formState == 'add'">Add User</span>
+            <span *ngIf="formState == 'edit'">Edit User</span>
+            <div *ngIf="toggleUser" class="pull-right"><i class="glyphicon glyphicon-chevron-up"></i></div>
+            <div *ngIf="!toggleUser" class="pull-right glyphicon glyphicon-chevron-down"></div>
+          </h3>
+        </div>
+        <div class="panel-body" *ngIf="toggleUser">
+          <form *ngIf="formState == 'add'" [formGroup]="addUser" (ngSubmit)="onUserSubmit()">
+            <div formGroupName="user_metadata">
+              <div class="form-group">
+                <label>Full name:</label>
+                <input type="text" class="form-control" formControlName="name" placeholder="John Doe">
+              </div>
+              <div class="form-group">
+                <label>User Permission:</label>
+                <select class="form-control" formControlName="permission">
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email:</label>
+              <input type="text" class="form-control" formControlName="email" placeholder="johndoe@youremail.com">
+            </div>
+            <div class="form-group">
+              <label>Password:</label>
+              <input type="password" class="form-control" formControlName="password">
+            </div>
+            <input type="submit" class="btn btn-success btn-block">
+          </form>
+
+          <form *ngIf="formState == 'edit'" (ngSubmit)="onUserEdit(f)" #f="ngForm">
+            <div class="form-group">
+              <label>Full name:</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedUserName" name="name">
+            </div>
+            <div class="form-group">
+              <label>User Permission:</label>
+              <select class="form-control" [(ngModel)]="selectedUserPermission" name="permission">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <input type="submit" class="btn btn-success btn-block" value="Save">
+            <input *ngIf="formState == 'edit'" (click)="resetToDefault()" type="button" class="btn btn-default btn-block" value="Cancel">
+
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-info">
+        <div class="panel-heading" (click)="categoryToggle()">
+          <h3 class="panel-title">
+            <span *ngIf="categoryFormState == 'add'">Add Category</span>
+            <span *ngIf="categoryFormState == 'edit'">Edit Category</span>
+            <div *ngIf="toggleCategory" class="pull-right"><i class="glyphicon glyphicon-chevron-up"></i></div>
+            <div *ngIf="!toggleCategory" class="pull-right glyphicon glyphicon-chevron-down"></div>
+          </h3>
+        </div>
+        <div class="panel-body" *ngIf="toggleCategory">
+          <form [formGroup]="addCategory" (ngSubmit)="onCategorySubmit()">
+            <div class="form-group">
+              <label>Category name:</label>
+              <input type="text" class="form-control" formControlName="name" placeholder="Category name">
+            </div>
+            <input type="submit" class="btn btn-primary btn-block">
+            <input *ngIf="categoryFormState == 'edit'" (click)="resetToDefault()" type="button" class="btn btn-default btn-block" value="Cancel">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <!--In case of server errors we display a message-->
+      <div class="alert alert-danger" role="alert" *ngIf="anyErrors">
+        Something went wrong, your last edit was not saved. Check your Internet Connection. Refresh the
+        application.
+        <br>
+        <pre><code>{{anyErrors}}</code></pre>
+      </div>
+      <!--In case of server errors we display a message-->
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Edit</th>
+          <th>Remove</th>
+        </tr>
+        </thead>
+        <tbody *ngIf="usersSettings">
+        <tr *ngFor="let user of usersSettings.users">
+          <td>{{user.name}}
+          </td>
+          <td>{{user.permission}}
+          </td>
+          <td>
+            <i (click)="editUser(user.name,user.permission,user.id)" class="glyphicon glyphicon-edit"></i>
+          </td>
+          <td>
+            <i (click)="removeUser(user.id)"  class="glyphicon glyphicon-remove"></i>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Edit</th>
+          <th>Remove</th>
+        </tr>
+        </thead>
+        <tbody *ngIf="categorySettings">
+        <tr *ngFor="let category of categorySettings.categories">
+          <td>{{category.name}}</td>
+          <td>
+            <i (click)="editCategory(category.name)" class="glyphicon glyphicon-edit"></i>
+          </td>
+          <td>
+            <i (click)="removeCategory(category.name)" class="glyphicon glyphicon-remove"></i>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+
+</div>

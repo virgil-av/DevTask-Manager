@@ -1,0 +1,175 @@
+<div class="table-align">
+  <table-toolbar (rowsPerPage)="rowsPerPage = $event" (searchTerm)="filterQuery = $event"></table-toolbar>
+</div>
+
+<div class="table-align table-responsive" *ngIf="!anyErrors">
+  <table class="table table-bordered table-condensed">
+    <thead>
+    <tr>
+      <th></th>
+      <th width="35%">Title <span class="table-sort default-arrow"
+                                  [class.sort-asc]="sortBy == '+title'"
+                                  [class.sort-desc]="sortBy == '-title'"
+                                  (click)="sort('title')">
+      </span></th>
+
+      <th>Date <span class="table-sort default-arrow"
+                     [class.sort-asc]="sortBy == '+date'"
+                     [class.sort-desc]="sortBy == '-date'"
+                     (click)="sort('date')">
+      </span></th>
+
+      <th>Category <span class="table-sort default-arrow"
+                         [class.sort-asc]="sortBy == '+category'"
+                         [class.sort-desc]="sortBy == '-category'"
+                         (click)="sort('category')">
+      </span></th>
+
+      <th>Created By <span class="table-sort default-arrow"
+                           [class.sort-asc]="sortBy == '+author'"
+                           [class.sort-desc]="sortBy == '-author'"
+                           (click)="sort('author')">
+      </span></th>
+
+      <th>Assignee <span class="table-sort default-arrow"
+                         [class.sort-asc]="sortBy == '+assignee'"
+                         [class.sort-desc]="sortBy == '-assignee'"
+                         (click)="sort('assignee')">
+      </span></th>
+
+      <th>Status <span class="table-sort default-arrow"
+                       [class.sort-asc]="sortBy == '+status'"
+                       [class.sort-desc]="sortBy == '-status'"
+                       (click)="sort('status')">
+      </span></th>
+
+      <th>Testing Status</th>
+
+      <th>Priority <span class="table-sort default-arrow"
+                         [class.sort-asc]="sortBy == '+priority'"
+                         [class.sort-desc]="sortBy == '-priority'"
+                         (click)="sort('priority')">
+      </span></th>
+
+      <th>D</th>
+      <th>C</th>
+    </tr>
+
+    <tr *ngIf="isLoading == true">
+      <td colspan="11">
+        <is-loading [visible]="isLoading"></is-loading>
+      </td>
+    </tr>
+    </thead>
+    <tbody>
+    <!--ROW SETUP, filter is for search, orderBy is for column sort, paginate is for pagination-->
+    <tr
+      *ngFor="let task of (tasks | filter: filterQuery ) | orderBy:[sortBy] | paginate: { itemsPerPage: rowsPerPage, currentPage: p }"
+      [@fadeInOut]="isLoading"
+      [ngClass]="{
+      completed: task.status == 'Completed',
+      workingonit: task.status == 'Working on It',
+      forlater: task.status == 'For Later',
+      testing: task.status == 'Testing',
+      inqueue: task.status == 'In Queue',
+      explainingrequired: task.status == 'Explaining Required'
+      }">
+      <!--ROW SETUP END-->
+      <td>
+        <!--ROW MENU-->
+        <div class="dropup">
+          <i class="glyphicon glyphicon-option-vertical dropdown-toggle" id="taskMenu" data-toggle="dropdown"
+             aria-haspopup="true" aria-expanded="false"></i>
+          <ul class="dropdown-menu" aria-labelledby="taskMenu">
+            <li><a routerLink="/details/{{task._id.$oid}}"><span class="glyphicon glyphicon-eye-open"></span> View</a>
+            </li>
+            <li *ngIf="auth.authenticated() && auth.isAdmin()"><a (click)="getTaskToEdit(task)" data-toggle="modal" data-target="#EditTask"><span
+              class="glyphicon glyphicon-edit"></span> Edit</a></li>
+            <li *ngIf="auth.authenticated() && auth.isAdmin()"><a (click)="getTaskToEdit(task)" data-toggle="modal" data-target="#TestersModal"><span
+              class="fa fa-cogs"></span> Add Tester</a></li>
+            <li *ngIf="auth.authenticated() && auth.isAdmin()" role="separator" class="divider"></li>
+            <li *ngIf="auth.authenticated() && auth.isAdmin()"><a (click)="removeTask(task._id.$oid,task.title)"><span class="glyphicon glyphicon-remove"></span>
+              Remove</a></li>
+          </ul>
+        </div>
+        <!--ROW MENU END-->
+      </td>
+
+      <td>{{task.title | capitalize | substring}}</td>
+      <td>{{task.date | timeAgo}}</td>
+      <td>{{task.category}}</td>
+      <td>{{task.author}}</td>
+      <td>{{task.assignee}}</td>
+      <td>{{task.status}}</td>
+      <td>
+        <div *ngIf="task.status == 'Testing'"><span *ngFor="let tester of task.testers"><span class="name-initials">{{tester?.name | nameInitials}}</span>&nbsp;</span>
+        </div>
+
+      </td>
+      <td><i class="fa" [ngClass]="{
+      'priority-low': task.priority == 'Low',
+      'priority-normal': task.priority == 'Normal',
+      'priority-important': task.priority == 'Important',
+      'priority-urgent': task.priority == 'Urgent',
+      'priority-critical': task.priority == 'Critical'
+      }"></i>
+        {{task.priority}}
+      </td>
+      <td align="center">
+        <span *ngIf="task.discussion == ''" (click)="getTaskToEdit(task)" class="fa fa-plus" aria-hidden="true"
+              data-toggle="modal" data-target="#DiscussionModal"></span>
+        <span *ngIf="task.discussion != ''" (click)="getTaskToEdit(task)" class="fa fa-weixin" aria-hidden="true"
+              data-toggle="modal" data-target="#DiscussionModal"></span>
+      </td>
+      <td align="center">
+        <span *ngIf="task.comment == ''">--</span>
+        <span *ngIf="task.comment != ''" class="glyphicon glyphicon-comment" (click)="readComment(task.comment)"
+              data-toggle="modal" data-target="#CommentModal"></span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="ng2-pagination pull-right">
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  </div>
+</div>
+
+
+<div class="alert alert-danger" role="alert" *ngIf="anyErrors">
+  Something went wrong, we cannot load tasks from database. Check your Internet Connection. Refresh the application.
+  <br>
+  <pre><code>{{anyErrors}}</code></pre>
+</div>
+
+
+<!-- Comment Modal -->
+<div class="modal fade" id="CommentModal" tabindex="-1" role="dialog" aria-labelledby="CommentModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="CommentModalLabel">Comment</h4>
+      </div>
+      <div class="modal-body">
+        <div [innerHTML]="selectedComment | capitalize | markdownToHtml">
+          <!--Because of the markdown we need to bind to the inner HTML element-->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Comment Modal End -->
+
+<!--ADD NEW TASK MODAL WINDOW-->
+<add-task (updateTasks)="updateNewTask($event)"></add-task>
+
+<!--EDIT TASK MODAL WINDOW-->
+<div *ngIf="selectedTask">
+  <edit-task [selectedTask]="selectedTask" (updateTask)="updateEditedTask($event)"></edit-task>
+</div>
+
+

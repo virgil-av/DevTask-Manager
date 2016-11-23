@@ -1,0 +1,70 @@
+<!-- Modal -->
+<div class="modal fade" id="ModalWindow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">Create a new Task</h4>
+      </div>
+      <div class="modal-body">
+
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+          <div>
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" class="form-control" formControlName="title" placeholder="A descriptive title...">
+              <span class="alert" *ngIf="taskForm.controls.title.dirty && (taskForm.controls.title.errors != null)">Minimum length for your title is 5 characters.</span>
+            </div>
+
+            <div class="form-group" *ngIf="formSettings">
+              <label>Status:</label>
+              <select class="form-control" formControlName="status">
+                <option *ngFor="let status of formSettings.status" value="{{status}}">{{status}}</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="formSettings">
+              <label>Priority:</label>
+              <select class="form-control" formControlName="priority">
+                <option *ngFor="let priority of formSettings.priority" value="{{priority}}">{{priority}}</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="usersSettings">
+              <label>Assignee:</label>
+              <input type="text" class="form-control" formControlName="assignee" placeholder="Click to select..."
+                     list="userList">
+              <datalist id="userList">
+                <option *ngFor="let assignee of usersSettings.users" value="{{assignee.name}}">
+              </datalist>
+            </div>
+
+            <div class="form-group" *ngIf="categorySettings">
+              <label>Category:</label>
+              <select class="form-control" formControlName="category">
+                <option *ngFor="let category of categorySettings.categories" value="{{category.name}}">{{category.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Comment:</label>
+              <textarea class="form-control" formControlName="comment"
+                        placeholder="Providing that extra information is always a better choice."></textarea>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary" [disabled]="!taskForm.valid">Submit</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
