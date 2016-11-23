@@ -11,7 +11,7 @@ export const Options = {
   }],
 
   theme: {
-    logo: "../../assets/logo.png",
+    logo: "assets/logo.png",
     primaryColor: "#b81b1c"
   },
 
